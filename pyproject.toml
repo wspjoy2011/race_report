@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "report_race_framework_wspjoy2011"
+version = "0.0.1"
+authors = [
+  { name="Yuriy Okal", email="wspjoy2011@gmail.com" },
+]
+description = "Shows statistics about F1 Monaco 2018 race"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://git.foxminded.com.ua/foxstudent103105/task-6-report-of-monaco-2018-racing"
