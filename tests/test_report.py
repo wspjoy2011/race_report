@@ -4,9 +4,10 @@ Tests for report module
 import pytest
 import os
 
-
-from report_framework import main_report
-from report_framework import get_base_dir
+from report_framework import file_handler
+from report_framework.report import main as main_report
+import report_framework.file_handler
+print(report_framework.file_handler.__file__)
 
 
 class TestMainReport:
@@ -14,7 +15,7 @@ class TestMainReport:
 
     def setup(self):
         self.func = main_report
-        self.path_ta_data = os.path.join(get_base_dir(), 'racing_data')
+        self.path_ta_data = os.path.join(os.getcwd(), 'racing_data')
 
     def test_with_racing_data(self):
         race_results, abbr_data = self.func(self.path_ta_data)

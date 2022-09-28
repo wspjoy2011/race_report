@@ -6,19 +6,21 @@ python cli_report.py --files <folder_path> [--asc | --desc]  shows list of drive
 python cli_report.py --files <folder_path> --driver “Sebastian Vettel”  shows statistic about driver
 """
 import argparse
+from argparse import Namespace
+
 from prettytable import PrettyTable
 
 from report import sort_race_logs, main as main_report
 
 
-def parse_args() -> argparse:
+def parse_args() -> Namespace:
     """
     Parse cli arguments with argparse
-    :param:
     :return instance of argparse:
     """
     parser = argparse.ArgumentParser(prog='CLI Interface to report framework',
-                                     usage='%(prog)s cli_report.py \"[--files "<folder_path>" [--asc | --desc] --driver]"',
+                                     usage='%(prog)s cli_report.py \"[--files "<folder_path>" [--asc | --desc] '
+                                           '--driver]"',
                                      description='Show report about racing logs')
     parser.add_argument('--files',
                         type=str,
@@ -37,38 +39,49 @@ def parse_args() -> argparse:
     parser.add_argument('--driver',
                         type=str,
                         help='shows statistic about driver',
-                        default=None,
+                        default='',
                         required=False)
     args = parser.parse_args()
     return args
 
 
-def print_race_result_table(race_results: dict[str], abbrs: dict[str: tuple[str]], current_driver: str):
-    """Print console table with race results"""
-    race_limit = 15
-    found_driver = False
-    cli_table = PrettyTable()
-    cli_table.field_names = ["№", "Driver", "Company", "Race time"]
-    for counter, code in enumerate(race_results):
+def prepare_race_table(race_results: dict[str: str], abbrs: dict[str: tuple[str]], current_driver: str):
+    """Prepare race data to print"""
+    race_table = []
+    for counter, code in enumerate(race_results, 1):
         driver = abbrs[code][0]
         company = abbrs[code][1]
         race_time = race_results[code]
         if current_driver:
             if driver == current_driver:
-                cli_table.add_row([counter + 1, driver, company, race_time])
-                found_driver = True
+                race_table.append((counter, driver, company, race_time))
                 break
             continue
-        cli_table.add_row([counter + 1, driver, company, race_time])
-        if counter + 1 == race_limit:
-            cli_table.add_row(['#' * 2, '#' * 18, '#' * 20, '#' * 16])
-    if current_driver and not found_driver:
-        print('Driver not found')
-        return -1
+        race_table.append((counter, driver, company, race_time))
+
+    if current_driver and not race_table:
+        return False
+    return race_table
+
+
+def print_race_result_table(race_results: list[tuple[int, str, str, str]]):
+    """Print console table with race results"""
+    race_limit = 15
+    cli_table = PrettyTable()
+    cli_table.field_names = ["№", "Driver", "Company", "Race time"]
+    len_number = max([len(str(number[0])) for number in race_results])
+    len_race_time = len(race_results[0][3])
+    len_driver = max([len(driver[1]) for driver in race_results])
+    len_company = max([len(company[2]) for company in race_results])
+    print(len_driver)
+    for counter, driver, company, race_time in race_results:
+        cli_table.add_row([counter, driver, company, race_time])
+        if counter == race_limit:
+            cli_table.add_row(['#' * len_number, '#' * len_driver, '#' * len_company, '#' * len_race_time])
     print(cli_table)
 
 
-def main(folder: str | None, order_asc: bool, order_desc: bool, driver: str | None):
+def main(folder: str | None, order_asc: bool = True, order_desc: bool = False, driver: str = ''):
     """Main controller of cli_report module"""
     if order_asc and order_desc:
         print('Cannot use two options together: --asc --desc')
@@ -78,8 +91,13 @@ def main(folder: str | None, order_asc: bool, order_desc: bool, driver: str | No
     except FileNotFoundError as e:
         print(e)
         return False
-    race_results_sorted = sort_race_logs(race_results, order_desc)
-    print_race_result_table(race_results_sorted, abbrs, driver)
+    order = 'desc' if order_desc else 'asc'
+    race_results_sorted = sort_race_logs(race_results, order)
+    race_table = prepare_race_table(race_results_sorted, abbrs, driver)
+    if not race_table:
+        print('Driver not found')
+    else:
+        print_race_result_table(race_table)
 
 
 if __name__ == '__main__':

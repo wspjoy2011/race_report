@@ -4,7 +4,6 @@ Tests for file_handler module
 import pytest
 import os
 
-from report_framework.get_base_dir import get_base_dir
 from report_framework.file_handler import read_data_fromfile
 
 
@@ -13,10 +12,10 @@ class TestFileHandler:
 
     def setup(self):
         self.func = read_data_fromfile
-        self.path_to_file_abbr = os.path.join(get_base_dir(), 'racing_data', 'abbreviations.txt')
-        self.path_to_file_start = os.path.join(get_base_dir(), 'racing_data', 'start.log')
-        self.path_to_file_end = os.path.join(get_base_dir(), 'racing_data', 'end.log')
-        self.path_to_file_wrong = os.path.join(get_base_dir(), 'WrongData.txt')
+        self.path_to_file_abbr = os.path.join(os.getcwd(), 'racing_data', 'abbreviations.txt')
+        self.path_to_file_start = os.path.join(os.getcwd(), 'racing_data', 'start.log')
+        self.path_to_file_end = os.path.join(os.getcwd(), 'racing_data', 'end.log')
+        self.path_to_file_wrong = os.path.join(os.getcwd(), 'WrongData.txt')
 
     def test_with_abbreviations(self):
         data = self.func(self.path_to_file_abbr)
